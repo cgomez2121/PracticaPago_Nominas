@@ -1,4 +1,4 @@
-package InformeHilos;
+package informe_hilos;
 
 /**
  Almacena todas las estadisticas procesadas por un único hilo,

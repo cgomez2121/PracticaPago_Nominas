@@ -1,4 +1,4 @@
-package Constantes;
+package constantes;
 
 /**
  Clase que almacena todas las constantes del proyecto.

@@ -1,4 +1,4 @@
-package ManejoDeDatos;
+package manejo_de_datos;
 
 /**
  Monitor para la variable compartida 'saldo'. Protege la operación importantisima de descuento del saldo principal

@@ -1,4 +1,4 @@
-package ManejoDeDatos;
+package manejo_de_datos;
 
 /**
  Clase que representa una transferencia. Controla que se procese una única vez
