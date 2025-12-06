@@ -4,4 +4,7 @@ Este proyecto implementa un sistema de pago de nóminas concurrente siguiendo el
 
 
 
+
 Autor: Carlos José Gómez Sánchez
+Curso: DA2D1A 
+Asignatura: Programación de servicios y procesos
