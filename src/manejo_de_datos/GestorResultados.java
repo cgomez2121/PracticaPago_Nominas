@@ -5,51 +5,77 @@ import informe_hilos.EstadisticasHilo;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Monitor para el almacenamiento centralizado de resultados.
+ * Reune las operaciones de escritura (clasificación de transferencias y actualización de estadísticas)
+ * para evitar interferencia entre hilos y garantizar la consistencia de los datos.
+ */
 public class GestorResultados {
+    // Estas listas son recursos compartidos que solo se modifican a través de métodos sincronizados.
     private final List<Transferencia> procesadasInternas = new ArrayList<>();
     private final List<Transferencia> procesadasExternas = new ArrayList<>();
     private final List<Transferencia> procesadasSinSaldo = new ArrayList<>();
-    // Lista para guardar las estadísticas
     private final List<EstadisticasHilo> estadisticasHilos = new ArrayList<>();
 
-    // Getters
-    public List<Transferencia> getListaSinSaldo() {
+
+    // Obtiene la lista de transferencias sin saldo.
+    public synchronized List<Transferencia> getListaSinSaldo() {
         return procesadasSinSaldo;
     }
 
-    public List<Transferencia> getListaInternas() {
+    // Obtiene la lista de transferencias internas procesadas.
+    public synchronized List<Transferencia> getListaInternas() {
         return procesadasInternas;
     }
 
-    public List<Transferencia> getListaExternas() {
+    // Obtiene la lista de transferencias externas procesadas.
+    public synchronized List<Transferencia> getListaExternas() {
         return procesadasExternas;
     }
 
-    public List<EstadisticasHilo> getEstadisticasHilos() {
+    // Obtiene la lista de estadísticas acumuladas por hilo.
+    public synchronized List<EstadisticasHilo> getEstadisticasHilos() {
         return estadisticasHilos;
     }
 
-    // Metodos para clasificar transferencias
+    // --- Métodos de Clasificación ---
+
+    /**
+     * Clasifica una transferencia como interna.
+     * t Transferencia procesada.
+     */
     public synchronized void clasificarInterna(Transferencia t) {
         procesadasInternas.add(t);
     }
 
+    /**
+     * Clasifica una transferencia como externa.
+     * t Transferencia procesada.
+     */
     public synchronized void clasificarExterna(Transferencia t) {
         procesadasExternas.add(t);
     }
 
+    /**
+     * Clasifica una transferencia como sin saldo.
+     * t Transferencia procesada.
+     */
     public synchronized void clasificarSinSaldo(Transferencia t) {
         procesadasSinSaldo.add(t);
     }
 
     /**
-     Busca si ya existen estadísticas para este hilo. Si existen, las actualiza (suma).
-     Si no, crea un nuevo registro.
+     * Busca si ya existen estadísticas para este hilo y las actualiza, o crea un nuevo registro.
+     * Toda la operación esta protegida y evita la interferencia al modificar la lista compartida de estadísticas.
+     * nombreHilo es el nombre del hilo (ej. pool-1-thread-2).
+     * importe es el importe de la transferencia procesada.
+     * pagada es true si se pudo pagar.
+     * esInterna es true si la transferencia es interna.
      */
-    public synchronized void actualizarEstadisticas(String nombreHilo, double importe, boolean pagada, boolean esInterna, boolean esExterna) {
+    public synchronized void actualizarEstadisticas(String nombreHilo, double importe, boolean pagada, boolean esInterna) {
         EstadisticasHilo statsEncontrado = null;
 
-        // Búsqueda básica en la lista
+        // Búsqueda del registro del hilo
         for (EstadisticasHilo stats : estadisticasHilos) {
             if (stats.nombreHilo.equals(nombreHilo)) {
                 statsEncontrado = stats;
@@ -57,22 +83,27 @@ public class GestorResultados {
             }
         }
 
-        // Si no existe, lo creamos y añadimos
+        // Si no existe, se crea un nuevo registro y se añade a la lista
         if (statsEncontrado == null) {
             statsEncontrado = new EstadisticasHilo();
             statsEncontrado.nombreHilo = nombreHilo;
             estadisticasHilos.add(statsEncontrado);
         }
 
-        // Acumular los datos (suma simple)
+        // Acumulación de los datos
         statsEncontrado.transferenciasProcesadas++;
         statsEncontrado.importeProcesado += importe;
 
         if (pagada) {
             statsEncontrado.importePagado += importe;
-            if (esInterna) statsEncontrado.internasProcesadas++;
-            if (esExterna) statsEncontrado.externasProcesadas++;
+            if (esInterna) {
+                statsEncontrado.internasProcesadas++;
+            } else {
+                // Si fue pagada y no es interna, es externa
+                statsEncontrado.externasProcesadas++;
+            }
         } else {
+            // No fue pagada
             statsEncontrado.sinSaldoProcesadas++;
         }
     }
