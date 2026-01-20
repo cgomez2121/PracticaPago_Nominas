@@ -19,22 +19,22 @@ public class GestorResultados {
 
 
     // Obtiene la lista de transferencias sin saldo.
-    public List<Transferencia> getListaSinSaldo() {
+    public synchronized List<Transferencia> getListaSinSaldo() {
         return procesadasSinSaldo;
     }
 
     // Obtiene la lista de transferencias internas procesadas.
-    public List<Transferencia> getListaInternas() {
+    public synchronized List<Transferencia> getListaInternas() {
         return procesadasInternas;
     }
 
     // Obtiene la lista de transferencias externas procesadas.
-    public List<Transferencia> getListaExternas() {
+    public synchronized List<Transferencia> getListaExternas() {
         return procesadasExternas;
     }
 
     // Obtiene la lista de estadísticas acumuladas por hilo.
-    public List<EstadisticasHilo> getEstadisticasHilos() {
+    public synchronized List<EstadisticasHilo> getEstadisticasHilos() {
         return estadisticasHilos;
     }
 
@@ -44,7 +44,7 @@ public class GestorResultados {
      * Clasifica una transferencia como interna.
      * t Transferencia procesada.
      */
-    public void clasificarInterna(Transferencia t) {
+    public synchronized void clasificarInterna(Transferencia t) {
         procesadasInternas.add(t);
     }
 
@@ -52,7 +52,7 @@ public class GestorResultados {
      * Clasifica una transferencia como externa.
      * t Transferencia procesada.
      */
-    public void clasificarExterna(Transferencia t) {
+    public synchronized void clasificarExterna(Transferencia t) {
         procesadasExternas.add(t);
     }
 
@@ -60,7 +60,7 @@ public class GestorResultados {
      * Clasifica una transferencia como sin saldo.
      * t Transferencia procesada.
      */
-    public void clasificarSinSaldo(Transferencia t) {
+    public synchronized void clasificarSinSaldo(Transferencia t) {
         procesadasSinSaldo.add(t);
     }
 
@@ -109,3 +109,4 @@ public class GestorResultados {
     }
 
 }
+
